@@ -35,3 +35,7 @@ win64/
 
 # Misc
 *.log
+
+*.sh
+
+.idea/
