@@ -7,7 +7,6 @@
 
 #include "godot_cpp/classes/editor_vcs_interface.hpp"
 #include "git2.h"
-#include <vector>
 
 struct Credentials {
 	godot::String username;
