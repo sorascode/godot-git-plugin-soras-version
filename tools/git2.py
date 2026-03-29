@@ -13,7 +13,7 @@ def build_library(env, deps):
         "BUILD_CLI": 0,
         "BUILD_EXAMPLES": 0,
         "BUILD_FUZZERS": 0,
-        "USE_SSH": 1,
+        "USE_SSH": "ON",
         "USE_HTTPS": 1,
         "USE_SHA1": 1,
         "USE_BUNDLED_ZLIB": 1,
