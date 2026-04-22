@@ -162,6 +162,10 @@ void GitPlugin::_commit(const godot::String &msg, bool amend) {
 	}
 }
 
+bool GitPlugin::_allow_amends() {
+	return true;
+}
+
 void GitPlugin::_stage_file(const godot::String &file_path) {
 	CString c_path(file_path);
 	char *paths[] = { c_path.data };
