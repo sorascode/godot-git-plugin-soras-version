@@ -5,6 +5,9 @@
 #include <git2/tree.h>
 #include "godot_cpp/core/class_db.hpp"
 #include "godot_cpp/classes/file_access.hpp"
+#include "godot_cpp/classes/dir_access.hpp"
+#include "godot_cpp/classes/os.hpp"
+#include "godot_cpp/classes/project_settings.hpp"
 #include "godot_cpp/variant/utility_functions.hpp"
 
 #define GIT2_CALL(error, msg)                                         \
@@ -717,6 +720,22 @@ bool GitPlugin::_initialize(const godot::String &project_path) {
 
 	if (!head) {
 		create_gitignore_and_gitattributes();
+	}
+
+	// We need to create a temporary file to load the CA from (libgit2 does not support loading certificates from string or raw pem).
+	const String cafile = ProjectSettings::get_singleton()->globalize_path("res://.godot/git-cas" + OS::get_singleton()->get_entropy(8).hex_encode() + ".crt");
+	godot::Ref<godot::FileAccess> file = godot::FileAccess::open(cafile, godot::FileAccess::WRITE_READ);
+	if (file.is_null()) {
+		return false;
+	}
+	file->store_buffer(OS::get_singleton()->get_system_ca_certificates().to_utf8_buffer());
+	file->close();
+	int error = git_libgit2_opts(GIT_OPT_SET_SSL_CERT_LOCATIONS, cafile.utf8().get_data(), NULL);
+	DirAccess::remove_absolute(cafile); // Always remove the file
+	if (unlikely(error)) {
+		ERR_PRINT("GitPlugin: Failed to load CA bundle: " + cafile + ", error: " + itos(error));
+	} else {
+		godot::UtilityFunctions::print("GitPlugin: Loaded system CA certificates");
 	}
 
 	return true;
